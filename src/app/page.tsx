@@ -38,7 +38,7 @@ export default function Home() {
         </h1>
 
         <p className="text-xl md:text-2xl text-slate-500 mb-12 font-medium max-w-lg mx-auto leading-tight">
-          The premium marketplace for creators to monetize AI prompts.
+          The secure marketplace for AI creators. Sell access to your prompts, keep your logic hidden.
         </p>
 
         <form action={handleSubmit} className="relative max-w-md mx-auto group">
@@ -83,10 +83,10 @@ export default function Home() {
 
         <div className="mt-12 flex items-center justify-center gap-8 text-slate-400 font-medium text-sm">
           <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> 0% Listing Fees
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> Anti-Leak Tech
           </span>
           <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> Verified Prompts
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> Dynamic UI Forms
           </span>
         </div>
       </div>
