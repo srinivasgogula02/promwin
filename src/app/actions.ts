@@ -14,6 +14,9 @@ export async function joinWaitlist(formData: FormData) {
         .insert([{ email }])
 
     if (error) {
+        if (error.code === '23505') {
+            return { error: 'This email is already on the waitlist!' }
+        }
         console.error('Error joining waitlist:', error)
         return { error: 'Failed to join waitlist. Please try again.' }
     }
