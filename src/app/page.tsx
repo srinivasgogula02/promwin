@@ -1,4 +1,31 @@
+'use client'
+
+import { useState } from 'react';
+import { joinWaitlist } from './actions';
+
 export default function Home() {
+  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  async function handleSubmit(formData: FormData) {
+    setStatus('pending');
+    setMessage('');
+
+    try {
+      const result = await joinWaitlist(formData);
+      if (result.success) {
+        setStatus('success');
+        setMessage('You have been added to the waitlist!');
+      } else {
+        setStatus('error');
+        setMessage(result.error || 'Something went wrong.');
+      }
+    } catch (err) {
+      setStatus('error');
+      setMessage('An unexpected error occurred.');
+    }
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen p-6 selection:bg-yellow-200">
       <div className="max-w-2xl w-full text-center">
@@ -14,23 +41,32 @@ export default function Home() {
           The premium marketplace for creators to monetize AI prompts.
         </p>
 
-        <form className="relative max-w-md mx-auto group">
+        <form action={handleSubmit} className="relative max-w-md mx-auto group">
           <div className="flex flex-col sm:flex-row gap-2 p-2 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-md shadow-sm group-focus-within:border-yellow-400 transition-all">
             <input
+              name="email"
               type="email"
               placeholder="name@email.com"
               className="w-full px-4 py-3 rounded-xl bg-transparent text-slate-900 focus:outline-none placeholder-slate-400"
               required
+              disabled={status === 'pending' || status === 'success'}
             />
             <button
               type="submit"
-              className="yellow-glow whitespace-nowrap px-8 py-3 bg-yellow-400 hover:bg-black hover:text-white text-black font-bold rounded-xl transition-all duration-300 cursor-pointer"
+              disabled={status === 'pending' || status === 'success'}
+              className="yellow-glow disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap px-8 py-3 bg-yellow-400 hover:bg-black hover:text-white text-black font-bold rounded-xl transition-all duration-300 cursor-pointer"
             >
-              Get Early Access
+              {status === 'pending' ? 'Joining...' : 'Get Early Access'}
             </button>
           </div>
 
           <div className="absolute -z-10 top-0 left-1/2 -translate-x-1/2 w-full h-full bg-yellow-100 blur-2xl opacity-30 rounded-full"></div>
+
+          {message && (
+            <p className={`mt-4 text-sm font-medium ${status === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+              {message}
+            </p>
+          )}
         </form>
 
         <div className="mt-12 flex items-center justify-center gap-8 text-slate-400 font-medium text-sm">
