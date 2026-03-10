@@ -24,8 +24,13 @@ export async function POST(req: Request) {
     }
 
     // Get the body
-    const payload = await req.json()
-    const body = JSON.stringify(payload)
+    const body = await req.text()
+    let payload: any;
+    try {
+        payload = JSON.parse(body);
+    } catch (e) {
+        return new Response('Error parsing JSON body', { status: 400 });
+    }
 
     // Create a new Svix instance with your secret.
     const wh = new Webhook(WEBHOOK_SECRET)
@@ -41,7 +46,7 @@ export async function POST(req: Request) {
         }) as WebhookEvent
     } catch (err) {
         console.error('Error verifying webhook:', err)
-        return new Response('Error occured', {
+        return new Response('Error verifying webhook signature', {
             status: 400,
         })
     }
@@ -58,7 +63,7 @@ export async function POST(req: Request) {
 
         if (!supabaseServiceKey) {
             console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
-            return new Response('Server configuration error', { status: 500 });
+            return new Response('Server configuration error: Missing SUPABASE_SERVICE_ROLE_KEY', { status: 500 });
         }
 
         const { createClient } = await import('@supabase/supabase-js');
@@ -75,7 +80,7 @@ export async function POST(req: Request) {
 
         if (error) {
             console.error('Error syncing user to Supabase:', error)
-            return new Response('Error syncing user to Supabase', { status: 500 })
+            return new Response(`Error syncing user to Supabase: ${error.message} (Code: ${error.code})`, { status: 500 })
         }
     }
 
@@ -96,7 +101,7 @@ export async function POST(req: Request) {
 
             if (error) {
                 console.error('Error deleting user from Supabase:', error)
-                return new Response('Error deleting user from Supabase', { status: 500 })
+                return new Response(`Error deleting user: ${error.message}`, { status: 500 })
             }
         }
     }
