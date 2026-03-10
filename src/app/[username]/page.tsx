@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { Grid, Lock } from 'lucide-react';
 import { currentUser } from '@clerk/nextjs/server';
 import { BioEditor } from '@/components/BioEditor';
+import { EditProfileButton } from '@/components/EditProfileButton';
 
 interface ProfileProps {
     params: Promise<{
@@ -85,9 +86,7 @@ export default async function ProfilePage({ params }: ProfileProps) {
                         <h1 className="text-2xl font-normal text-slate-900">{user.username}</h1>
                         <div className="flex gap-2">
                             {isOwnProfile ? (
-                                <button className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 font-semibold rounded-lg text-black transition-colors text-sm">
-                                    Edit Profile
-                                </button>
+                                <EditProfileButton />
                             ) : (
                                 <>
                                     <button className="px-6 py-1.5 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-lg text-black transition-colors text-sm">
