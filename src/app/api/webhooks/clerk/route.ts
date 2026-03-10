@@ -53,7 +53,18 @@ export async function POST(req: Request) {
         const { id, username, first_name, last_name, image_url } = evt.data
         const name = [first_name, last_name].filter(Boolean).join(' ')
 
-        const { error } = await supabase
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+        if (!supabaseServiceKey) {
+            console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
+            return new Response('Server configuration error', { status: 500 });
+        }
+
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+        const { error } = await supabaseAdmin
             .from('users')
             .upsert({
                 id,
@@ -72,7 +83,13 @@ export async function POST(req: Request) {
         const { id } = evt.data
 
         if (id) {
-            const { error } = await supabase
+            const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+            const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+            const { createClient } = await import('@supabase/supabase-js');
+            const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+            const { error } = await supabaseAdmin
                 .from('users')
                 .delete()
                 .eq('id', id)
