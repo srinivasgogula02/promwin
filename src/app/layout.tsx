@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Instrument_Sans } from "next/font/google";
+import { ClerkProvider, SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 import "./globals.css";
 
 const instrumentSans = Instrument_Sans({
@@ -20,7 +21,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${instrumentSans.variable} antialiased`}>
-        {children}
+        <ClerkProvider>
+          <header className="flex justify-end items-center p-4 gap-4 absolute top-0 w-full z-10">
+            <Show when="signed-out">
+              <SignInButton />
+              <SignUpButton />
+            </Show>
+            <Show when="signed-in">
+              <UserButton />
+            </Show>
+          </header>
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );
