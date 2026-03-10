@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { Grid, Lock } from 'lucide-react';
+import { currentUser } from '@clerk/nextjs/server';
+import { BioEditor } from '@/components/BioEditor';
 
 interface ProfileProps {
     params: Promise<{
@@ -44,6 +46,9 @@ export default async function ProfilePage({ params }: ProfileProps) {
         notFound();
     }
 
+    const clerkUser = await currentUser();
+    const isOwnProfile = clerkUser?.username === user.username;
+
     // Placeholder stats for now until we build the prompts table
     const stats = {
         prompts: 0,
@@ -79,12 +84,20 @@ export default async function ProfilePage({ params }: ProfileProps) {
                     <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 w-full justify-center sm:justify-start">
                         <h1 className="text-2xl font-normal text-slate-900">{user.username}</h1>
                         <div className="flex gap-2">
-                            <button className="px-6 py-1.5 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-lg text-black transition-colors text-sm">
-                                Follow
-                            </button>
-                            <button className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 font-semibold rounded-lg text-black transition-colors text-sm">
-                                Message
-                            </button>
+                            {isOwnProfile ? (
+                                <button className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 font-semibold rounded-lg text-black transition-colors text-sm">
+                                    Edit Profile
+                                </button>
+                            ) : (
+                                <>
+                                    <button className="px-6 py-1.5 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-lg text-black transition-colors text-sm">
+                                        Follow
+                                    </button>
+                                    <button className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 font-semibold rounded-lg text-black transition-colors text-sm">
+                                        Message
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -102,10 +115,14 @@ export default async function ProfilePage({ params }: ProfileProps) {
 
                     <div className="text-center sm:text-left w-full">
                         <h2 className="font-semibold text-slate-900 text-sm">{user.name}</h2>
-                        {user.bio ? (
-                            <p className="text-slate-800 mt-1 whitespace-pre-wrap text-sm">{user.bio}</p>
+                        {isOwnProfile ? (
+                            <BioEditor initialBio={user.bio} />
                         ) : (
-                            <p className="text-slate-400 mt-1 italic text-sm">No bio yet.</p>
+                            user.bio ? (
+                                <p className="text-slate-800 mt-1 whitespace-pre-wrap text-sm">{user.bio}</p>
+                            ) : (
+                                <p className="text-slate-400 mt-1 italic text-sm">No bio yet.</p>
+                            )
                         )}
                     </div>
                 </div>
