@@ -5,6 +5,8 @@ import { Grid, Lock } from 'lucide-react';
 import { currentUser } from '@clerk/nextjs/server';
 import { BioEditor } from '@/components/BioEditor';
 import { EditProfileButton } from '@/components/EditProfileButton';
+import { FollowButton } from '@/components/FollowButton';
+import { getFollowStats, getFollowStatus } from '@/app/actions/follow';
 
 interface ProfileProps {
     params: Promise<{
@@ -55,14 +57,13 @@ export default async function ProfilePage({ params }: ProfileProps) {
     }
 
     const clerkUser = await currentUser();
-    const isOwnProfile = clerkUser?.username === user.username;
+    const isOwnProfile = clerkUser?.id === user.id;
 
-    // Placeholder stats for now until we build the prompts table
-    const stats = {
-        prompts: 0,
-        followers: 0,
-        following: 0,
-    };
+    // Fetch real stats and follow status
+    const [stats, followStatus] = await Promise.all([
+        getFollowStats(user.id),
+        getFollowStatus(user.id)
+    ]);
 
     return (
         <div className="min-h-screen bg-white">
@@ -96,10 +97,11 @@ export default async function ProfilePage({ params }: ProfileProps) {
                                 <EditProfileButton />
                             ) : (
                                 <>
-                                    <button className="px-6 py-1.5 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-lg text-black transition-colors text-sm">
-                                        Follow
-                                    </button>
-                                    <button className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 font-semibold rounded-lg text-black transition-colors text-sm">
+                                    <FollowButton
+                                        targetUserId={user.id}
+                                        initialIsFollowing={followStatus.isFollowing}
+                                    />
+                                    <button className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 font-semibold rounded-lg text-slate-900 transition-colors text-sm">
                                         Message
                                     </button>
                                 </>
@@ -109,7 +111,7 @@ export default async function ProfilePage({ params }: ProfileProps) {
 
                     <div className="flex gap-8 mb-6 text-slate-900 justify-center sm:justify-start w-full">
                         <div className="text-center sm:text-left">
-                            <span className="font-semibold text-base">{stats.prompts}</span> <span className="text-slate-500 font-normal">prompts</span>
+                            <span className="font-semibold text-base">{stats.prompts || 0}</span> <span className="text-slate-500 font-normal">prompts</span>
                         </div>
                         <div className="text-center sm:text-left">
                             <span className="font-semibold text-base">{stats.followers}</span> <span className="text-slate-500 font-normal">followers</span>

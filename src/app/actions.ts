@@ -66,3 +66,25 @@ export async function joinWaitlist(formData: FormData) {
         return { success: false, error: 'An unexpected error occurred.' };
     }
 }
+
+export async function cancelSubscription(subscriptionId: string) {
+    const user = await currentUser();
+    if (!user) {
+        return { success: false, error: "You must be logged in to cancel your subscription." };
+    }
+
+    try {
+        const { dodo } = await import('@/lib/dodo');
+
+        // Use the Dodo SDK to cancel the subscription
+        // Assuming subscription has a cancel method based on ID
+        await dodo.subscriptions.update(subscriptionId, {
+            status: "cancelled"
+        });
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error cancelling subscription via Dodo:", error);
+        return { success: false, error: error.message || "Failed to cancel subscription." };
+    }
+}
