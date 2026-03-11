@@ -84,7 +84,26 @@ export async function createDodoCheckout(creditsAmount: number, priceInCents: nu
     });
 
     try {
-        // Create a Dodo Payments payment session
+        // 1. Ensure the "Promwin Credits" product exists in the user's Dodo account
+        const products = await dodo.products.list();
+        let creditsProduct: any = products.items.find((p: any) => p.name === "Promwin Credits");
+
+        if (!creditsProduct) {
+            creditsProduct = await dodo.products.create({
+                name: "Promwin Credits",
+                tax_category: "digital_products",
+                price: {
+                    type: "one_time_price",
+                    currency: "USD",
+                    price: 100, // minimum $1.00 base price
+                    pay_what_you_want: true, // allows us to override the amount dynamically in the cart
+                    discount: 0,
+                    purchasing_power_parity: false
+                }
+            });
+        }
+
+        // 2. Create a Dodo Payments payment session
         const session = await dodo.payments.create({
             billing: {
                 city: "",
@@ -99,7 +118,7 @@ export async function createDodoCheckout(creditsAmount: number, priceInCents: nu
             },
             product_cart: [
                 {
-                    product_id: "prd_credits", // We can use a generic product or just pass price/amount directly if supported.
+                    product_id: creditsProduct.product_id,
                     quantity: 1,
                     amount: priceInCents
                 }
