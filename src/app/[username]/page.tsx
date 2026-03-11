@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { Grid, Lock } from 'lucide-react';
@@ -44,7 +44,14 @@ export default async function ProfilePage({ params }: ProfileProps) {
         .single();
 
     if (!user) {
-        notFound();
+        return (
+            <div className="flex items-center justify-center min-h-screen px-4 bg-white">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">User not found</h2>
+                    <p className="text-slate-500">This profile doesn't exist or hasn't been set up yet.</p>
+                </div>
+            </div>
+        );
     }
 
     const clerkUser = await currentUser();
