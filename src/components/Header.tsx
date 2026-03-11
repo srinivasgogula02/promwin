@@ -22,10 +22,13 @@ export function Header() {
                 <Show when="signed-in">
                     <div className="flex items-center gap-4 border-r border-slate-200 pr-4 mr-2">
                         {/* Credits Display */}
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700">
+                        <Link
+                            href="/buy-credits"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-yellow-50 border border-slate-200 hover:border-yellow-400 rounded-lg text-sm font-bold text-slate-700 hover:text-yellow-600 transition-colors cursor-pointer"
+                        >
                             <Zap size={14} className="text-yellow-500 fill-yellow-500" />
                             <span>1,000</span>
-                        </div>
+                        </Link>
 
                         {/* Create Button */}
                         <Link
