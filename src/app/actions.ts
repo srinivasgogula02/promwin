@@ -129,6 +129,7 @@ export async function createDodoCheckout(creditsAmount: number, priceInCents: nu
                 credits_amount: creditsAmount.toString()
             },
             return_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/buy-credits/success`,
+            payment_link: true, // Crucial: explicitly request a hosted checkout URL
         });
 
         // The Dodo API returns a checkout URL we can redirect the user to
