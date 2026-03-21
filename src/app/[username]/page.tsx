@@ -7,6 +7,8 @@ import { BioEditor } from '@/components/BioEditor';
 import { EditProfileButton } from '@/components/EditProfileButton';
 import { FollowButton } from '@/components/FollowButton';
 import { getFollowStats, getFollowStatus } from '@/app/actions/follow';
+import { getUserPrompts } from '@/app/actions/prompt';
+import { PromptCard } from '@/components/PromptCard';
 
 interface ProfileProps {
     params: Promise<{
@@ -59,10 +61,11 @@ export default async function ProfilePage({ params }: ProfileProps) {
     const clerkUser = await currentUser();
     const isOwnProfile = clerkUser?.id === user.id;
 
-    // Fetch real stats and follow status
-    const [stats, followStatus] = await Promise.all([
+    // Fetch real stats and follow status and prompts
+    const [stats, followStatus, prompts] = await Promise.all([
         getFollowStats(user.id),
-        getFollowStatus(user.id)
+        getFollowStatus(user.id),
+        getUserPrompts(user.id)
     ]);
 
     return (
@@ -111,7 +114,7 @@ export default async function ProfilePage({ params }: ProfileProps) {
 
                     <div className="flex gap-8 mb-6 text-slate-900 justify-center sm:justify-start w-full">
                         <div className="text-center sm:text-left">
-                            <span className="font-semibold text-base">{stats.prompts || 0}</span> <span className="text-slate-500 font-normal">prompts</span>
+                            <span className="font-semibold text-base">{prompts?.length || 0}</span> <span className="text-slate-500 font-normal">prompts</span>
                         </div>
                         <div className="text-center sm:text-left">
                             <span className="font-semibold text-base">{stats.followers}</span> <span className="text-slate-500 font-normal">followers</span>
@@ -148,17 +151,25 @@ export default async function ProfilePage({ params }: ProfileProps) {
                 </div>
             </div>
 
-            {/* Prompts Grid (Empty State initially) */}
+            {/* Prompts Section */}
             <main className="max-w-4xl mx-auto px-4 sm:px-8 py-12">
-                <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
-                    <div className="w-16 h-16 border-2 border-slate-300 rounded-full flex items-center justify-center mb-6">
-                        <Grid size={28} className="text-slate-300" />
+                {prompts && prompts.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 mt-4 gap-6">
+                        {prompts.map((prompt: any) => (
+                            <PromptCard key={prompt.id} prompt={prompt} isEditable={isOwnProfile} />
+                        ))}
                     </div>
-                    <h3 className="text-2xl font-extrabold text-slate-900 mb-2">No Prompts Yet</h3>
-                    <p className="max-w-md">
-                        {user.name} hasn't published any hidden prompts to the marketplace yet.
-                    </p>
-                </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
+                        <div className="w-16 h-16 border-2 border-slate-300 rounded-full flex items-center justify-center mb-6">
+                            <Grid size={28} className="text-slate-300" />
+                        </div>
+                        <h3 className="text-2xl font-extrabold text-slate-900 mb-2">No Prompts Yet</h3>
+                        <p className="max-w-md">
+                            {user.name} hasn't published any hidden prompts to the marketplace yet.
+                        </p>
+                    </div>
+                )}
             </main>
         </div>
     );
